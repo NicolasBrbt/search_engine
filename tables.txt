@@ -1,0 +1,45 @@
+CREATE TABLE pages (
+    id SERIAL PRIMARY KEY,
+    url TEXT UNIQUE NOT NULL,
+    content TEXT NOT NULL,
+    search_vector TSVECTOR,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE to_crawl (
+    id SERIAL PRIMARY KEY,
+    id_url_source INTEGER REFERENCES pages(id) ON DELETE CASCADE,
+    url TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    crawled BOOLEAN DEFAULT FALSE
+);
+
+
+CREATE TABLE index_mot (
+    id SERIAL PRIMARY KEY,
+    mot TEXT,
+    occurences occurences_url[]
+);
+
+CREATE TYPE occurences_url as (
+    occurences INT,
+    url TEXT
+);
+
+
+INSERT INTO index_mot (occurences) VALUES (
+    ARRAY[
+        ROW(1, 'https://example.com')::occurences_url,
+        ROW(3, 'https://another-example.com')::occurences_url
+    ]
+);
+
+UPDATE index_mot
+SET occurences = ARRAY[
+    ROW(2, 'https://updated-example.com')::occurences_url,
+    ROW(4, 'https://another-updated-example.com')::occurences_url
+]
+WHERE id = 1;
+
+
