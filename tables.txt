@@ -27,6 +27,8 @@ CREATE TYPE occurences_url as (
     url TEXT
 );
 
+requette sql pour ajouter une colonne 'titre' dans la table pages
+ALTER TABLE pages ADD COLUMN titre TEXT NOT NULL;
 
 INSERT INTO index_mot (occurences) VALUES (
     ARRAY[
