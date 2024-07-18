@@ -53,4 +53,82 @@ CREATE DATABASE "Google_Crawler"
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 
+    -- Table: public.pages
+
+-- DROP TABLE IF EXISTS public.pages;
+
+CREATE TABLE IF NOT EXISTS public.pages
+(
+    id integer NOT NULL DEFAULT nextval('pages_id_seq'::regclass),
+    url text COLLATE pg_catalog."default" NOT NULL,
+    content text COLLATE pg_catalog."default" NOT NULL,
+    search_vector tsvector,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    titre text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT pages_pkey PRIMARY KEY (id),
+    CONSTRAINT pages_url_key UNIQUE (url)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.pages
+    OWNER to postgres;
+-- Index: idx_pages_search_vector
+
+-- DROP INDEX IF EXISTS public.idx_pages_search_vector;
+
+CREATE INDEX IF NOT EXISTS idx_pages_search_vector
+    ON public.pages USING gist
+    (search_vector)
+    TABLESPACE pg_default;
+
+
+
+
+
+-- Table: public.to_crawl
+
+-- DROP TABLE IF EXISTS public.to_crawl;
+
+CREATE TABLE IF NOT EXISTS public.to_crawl
+(
+    id integer NOT NULL DEFAULT nextval('to_crawl_id_seq'::regclass),
+    id_url_source integer,
+    url text COLLATE pg_catalog."default" NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    crawled boolean DEFAULT false,
+    CONSTRAINT to_crawl_pkey PRIMARY KEY (id),
+    CONSTRAINT unique_url UNIQUE (url),
+    CONSTRAINT to_crawl_id_url_source_fkey FOREIGN KEY (id_url_source)
+        REFERENCES public.pages (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.to_crawl
+    OWNER to postgres;
+
+
+
+-- Table: public.index_mot
+
+-- DROP TABLE IF EXISTS public.index_mot;
+
+CREATE TABLE IF NOT EXISTS public.index_mot
+(
+    id integer NOT NULL DEFAULT nextval('index_mot_id_seq'::regclass),
+    mot text COLLATE pg_catalog."default",
+    occurences occurences_url[],
+    CONSTRAINT index_mot_pkey PRIMARY KEY (id),
+    CONSTRAINT unique_mot UNIQUE (mot)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.index_mot
+    OWNER to postgres;
+
 
